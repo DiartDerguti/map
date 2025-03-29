@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harta e Prishtinës</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+        integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+        integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            overflow: hidden;
+        }
+        #map {
+            height: 100vh;
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+        .info-box {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Harta e Prishtinës</h1>
+        <div class="info-box">
+            Klikoni në hartë për të shtuar një marker të ri
+        </div>
+        <div id="map"></div>
+    </div>
+
+    <script>
+        // Center on Prishtina
+        var map = L.map('map').setView([42.6629, 21.1655], 13, {
+            scrollWheelZoom: false
+        });
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        // Custom marker icon
+        var customIcon = L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+
+        // Initial markers for important locations in Prishtina
+        var locations = [
+            {
+                name: "Qendra e Qytetit",
+                coords: [42.6629, 21.1655],
+                description: "Qendra e Prishtinës"
+            },
+            {
+                name: "Universiteti i Prishtinës",
+                coords: [42.6557, 21.1583],
+                description: "Universiteti Shtetëror i Prishtinës"
+            },
+            {
+                name: "Parku i Rinisë",
+                coords: [42.6647, 21.1647],
+                description: "Parku i Rinisë në Qendër"
+            }
+        ];
+
+        // Iinitial markers
+        locations.forEach(function(location) {
+            var marker = L.marker(location.coords, {icon: customIcon}).addTo(map);
+            marker.bindPopup(`<b>${location.name}</b><br>${location.description}`);
+        });
+
+        // Function to add new marker on click
+        map.on('click', function(e) {
+            var newMarker = L.marker(e.latlng, {icon: customIcon}).addTo(map);
+            var markerCount = document.querySelectorAll('.leaflet-marker-icon').length;
+            newMarker.bindPopup(`<b>Marker ${markerCount}</b><br>Klikoni për të shtuar përshkrim`);
+            
+            // Enable editing of popup content
+            newMarker.on('click', function() {
+                var newDescription = prompt("Shtoni një përshkrim për këtë vend:");
+                if (newDescription) {
+                    newMarker.bindPopup(`<b>Marker ${markerCount}</b><br>${newDescription}`);
+                }
+            });
+        });
+
+        // Function to enable scroll wheel zoom when the map is clicked
+        function enableScrollWheelZoom() {
+            map.scrollWheelZoom.enable();
+        }
+
+        // Event listener to enable scroll wheel zoom when the map is clicked
+        map.on('click', enableScrollWheelZoom);
+
+        // Function to disable scroll wheel zoom when the map is not clicked
+        function disableScrollWheelZoom() {
+            map.scrollWheelZoom.disable();
+        }
+
+        // Event listener to disable scroll wheel zoom when the map loses focus
+        map.on('mouseout', disableScrollWheelZoom);
+    </script>
+</body>
+
+</html>
